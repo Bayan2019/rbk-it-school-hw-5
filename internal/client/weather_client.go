@@ -51,7 +51,6 @@ func (c *WeatherClient) GetCurrentWeather(ctx context.Context, lat, lon float64)
 	if err != nil {
 		return dto.ProviderWeatherResponse{}, fmt.Errorf("create request: %w", err)
 	}
-
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return dto.ProviderWeatherResponse{}, fmt.Errorf("call external api: %w", err)
