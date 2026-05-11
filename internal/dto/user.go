@@ -3,6 +3,7 @@ package dto
 import (
 	"strings"
 
+	"github.com/Bayan2019/rbk-it-school-hw-5/internal/auth"
 	"github.com/Bayan2019/rbk-it-school-hw-5/internal/model"
 )
 
@@ -12,6 +13,14 @@ type RegisterUserInput struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	IsActive  *bool  `json:"is_active,omitempty"`
+}
+
+type CreateUserInput struct {
+	Email        string `json:"email"`
+	PasswordHash string `db:"password_hash"`
+	FirstName    string `json:"first_name"`
+	LastName     string `json:"last_name"`
+	IsActive     *bool  `json:"is_active,omitempty"`
 }
 
 type UpdateUserInput struct {
@@ -80,4 +89,22 @@ func (f *ListUsersFilter) Normalize() {
 	}
 	f.Query = strings.TrimSpace(
 		strings.ToLower(f.Query))
+}
+
+func RegisterUserInput2CreateUserInput(rui RegisterUserInput) (CreateUserInput, error) {
+	var create CreateUserInput
+	create.Email = rui.Email
+	create.FirstName = rui.FirstName
+	create.LastName = rui.LastName
+	create.IsActive = rui.IsActive
+	// 6. Безопасность
+	// - bcrypt для паролей
+	// - не хранить пароли в plain text
+	hashPassword, err := auth.HashPassword(rui.Password)
+	if err != nil {
+		return create, err
+	}
+	create.PasswordHash = hashPassword
+
+	return create, nil
 }
