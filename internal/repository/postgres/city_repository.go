@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/Bayan2019/rbk-it-school-hw-5/internal/dto"
@@ -22,11 +23,10 @@ func NewCityRepository(db *sqlx.DB) *CityRepository {
 ////// methods
 ////// methods
 
-func (r *CityRepository) Create(ctx context.Context, input dto.CreateCityInput) (model.City, error) {
+func (r *CityRepository) Create(ctx context.Context, input dto.CreateCityInput) error {
 	query := `
 		INSERT INTO cities (city, lat, lon)
 		VALUES (:city, :lat, :lon)
-		RETURNING city_id, city, lat, lon,  created_at, updated_at
 	`
 
 	args := map[string]any{
@@ -35,24 +35,24 @@ func (r *CityRepository) Create(ctx context.Context, input dto.CreateCityInput) 
 		"lon":  input.Lon,
 	}
 
-	rows, err := r.db.NamedQueryContext(ctx, query, args)
+	result, err := r.db.NamedExecContext(ctx, query, args)
 	if err != nil {
 		if isUniqueViolation(err) {
-			return model.City{}, model.ErrEmailAlreadyTaken
+			return model.ErrCityNameAlreadyTaken
 		}
-		return model.City{}, err
+		return err
 	}
-	defer rows.Close()
+	// defer rows.Close()
 
-	if rows.Next() {
-		var city model.City
-		if err := rows.StructScan(&city); err != nil {
-			return model.City{}, err
-		}
-		return city, nil
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("result.RowsAffected(): %v", err)
+	}
+	if rowsAffected == 0 {
+		return errors.New("city is not created")
 	}
 
-	return model.City{}, errors.New("failed to create city")
+	return nil
 }
 
 func (r *CityRepository) Add2User(ctx context.Context, userID int64, input dto.AddCityInput) error {
@@ -71,21 +71,20 @@ func (r *CityRepository) Add2User(ctx context.Context, userID int64, input dto.A
 		"user_id": userID,
 	}
 
-	rows, err := r.db.NamedQueryContext(ctx, query, args)
+	result, err := r.db.NamedExecContext(ctx, query, args)
 	if err != nil {
 		if isUniqueViolation(err) {
 			return model.ErrCityAlreadyAdded2User
 		}
 		return err
 	}
-	defer rows.Close()
-
-	if rows.Next() {
-		// var city domain.City
-		// if err := rows.StructScan(&city); err != nil {
-		// 	return domain.City{}, err
-		// }
-		return nil
+	// defer rows.Close()
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("result.RowsAffected(): %v", err)
+	}
+	if rowsAffected == 0 {
+		return errors.New("city is not added to user")
 	}
 
 	return errors.New("failed to add city")

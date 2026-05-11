@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/Bayan2019/rbk-it-school-hw-5/internal/dto"
@@ -21,12 +22,11 @@ func NewWeatherRepository(db *sqlx.DB) *WeatherRepository {
 ////// methods
 ////// methods
 
-func (r *WeatherRepository) CreateHistory(ctx context.Context, userID int64, cityWeather dto.CityWeatherInput) (dto.WeatherHistoryResponse, error) {
+func (r *WeatherRepository) CreateHistory(ctx context.Context, userID int64, cityWeather dto.CityWeatherInput) error {
 
 	query := `
 		INSERT INTO weather_history (user_id, city, temperature, description)
 		VALUES (:user_id, :city, :temperature, :description)
-		RETURNING city, temperature, description, requested_at
 	`
 
 	args := map[string]any{
@@ -36,21 +36,20 @@ func (r *WeatherRepository) CreateHistory(ctx context.Context, userID int64, cit
 		"description": cityWeather.Description,
 	}
 
-	rows, err := r.db.NamedQueryContext(ctx, query, args)
+	result, err := r.db.NamedExecContext(ctx, query, args)
 	if err != nil {
-		return dto.WeatherHistoryResponse{}, err
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-		var result dto.WeatherHistoryResponse
-		if err := rows.StructScan(&result); err != nil {
-			return dto.WeatherHistoryResponse{}, err
-		}
-		return result, nil
+		return err
 	}
 
-	return dto.WeatherHistoryResponse{}, nil
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("result.RowsAffected(): %v", err)
+	}
+	if rowsAffected == 0 {
+		return errors.New("weather of city is not created")
+	}
+
+	return nil
 }
 
 func (r *WeatherRepository) WeatherHistoryOfUser(ctx context.Context, userID int64, filter dto.WeatherHistoryFilter) ([]dto.WeatherHistoryResponse, error) {

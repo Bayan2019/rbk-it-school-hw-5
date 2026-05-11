@@ -10,6 +10,7 @@ var (
 	ErrInvalidCityID         = errors.New("invalid city id")
 	ErrInvalidCityInput      = errors.New("invalid city input")
 	ErrCityAlreadyAdded2User = errors.New("city already added to user")
+	ErrCityNameAlreadyTaken  = errors.New("city's name is already taken")
 )
 
 type City struct {
