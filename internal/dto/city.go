@@ -18,8 +18,8 @@ type AddCityInput struct {
 
 type CreateCityInput struct {
 	City string  `json:"city"`
-	Lat  float64 `json:"lat"`
-	Lon  float64 `json:"lon"`
+	Lat  float64 `json:"lat,omitempty"`
+	Lon  float64 `json:"lon,omitempty"`
 }
 
 type ListCitiesFilter struct {
