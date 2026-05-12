@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Bayan2019/rbk-it-school-hw-5/internal/dto"
+	"github.com/Bayan2019/rbk-it-school-hw-5/internal/model"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -60,7 +61,7 @@ func (r *WeatherRepository) WeatherHistoryOfUser(
 	ctx context.Context,
 	userID int64,
 	filter dto.WeatherHistoryFilter,
-) ([]dto.WeatherHistoryResponse, error) {
+) ([]model.WeatherHistory, error) {
 	builder := strings.Builder{}
 	builder.WriteString(`
 		SELECT user_id, city, temperature, description, requested_at
@@ -95,7 +96,7 @@ func (r *WeatherRepository) WeatherHistoryOfUser(
 	}
 	query = r.db.Rebind(query)
 
-	var results []dto.WeatherHistoryResponse
+	var results []model.WeatherHistory
 	if err := r.db.SelectContext(ctx, &results, query, queryArgs...); err != nil {
 		return nil, errors.New("r.db.SelectContext")
 	}

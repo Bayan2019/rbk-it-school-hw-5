@@ -27,6 +27,14 @@ type ListCitiesFilter struct {
 	IncludeDeleted bool `json:"include_deleted"`
 }
 
+type CitiesResponse struct {
+	Data []model.City `json:"data"`
+}
+
+type CityResponse struct {
+	Data model.City `json:"data"`
+}
+
 ////// accommodating functions
 ////// accommodating functions
 ////// accommodating functions

@@ -8,12 +8,12 @@ import (
 )
 
 type weatherProvider interface {
-	GetCurrentWeather(ctx context.Context, lat, lon float64) (dto.ProviderWeatherResponse, error)
+	GetCurrentWeather(ctx context.Context, lat, lon float64) (model.Weather, error)
 }
 
 type weatherRepository interface {
 	CreateHistory(ctx context.Context, userID int64, cityWeather dto.CityWeatherInput) error
-	WeatherHistoryOfUser(ctx context.Context, userID int64, filter dto.WeatherHistoryFilter) ([]dto.WeatherHistoryResponse, error)
+	WeatherHistoryOfUser(ctx context.Context, userID int64, filter dto.WeatherHistoryFilter) ([]model.WeatherHistory, error)
 }
 
 type WeatherService struct {
@@ -35,28 +35,32 @@ func NewWeatherService(repo weatherRepository, provider weatherProvider) *Weathe
 func (s *WeatherService) CreateHistory(ctx context.Context,
 	userID int64,
 	city model.City,
-) error {
+) (model.Weather, error) {
 
-	res, err := s.provider.GetCurrentWeather(ctx, city.Lat, city.Lon)
+	weather, err := s.provider.GetCurrentWeather(ctx, city.Lat, city.Lon)
 	if err != nil {
 		// h.handleError(w, err)
-		return err
+		return weather, err
 	}
-	// if err := cityWeather.NormalizeAndValidate(); err != nil {
-	// 	return dto.WeatherHistoryResponse{}, err
-	// }
-	return s.repo.CreateHistory(ctx, userID, dto.CityWeatherInput{
+
+	err = s.repo.CreateHistory(ctx, userID, dto.CityWeatherInput{
 		City:        city.City,
-		Temperature: res.Temperature,
-		Description: res.Description,
+		Temperature: weather.Temperature,
+		Description: weather.Description,
 	})
+	if err != nil {
+
+		return weather, err
+	}
+
+	return weather, nil
 }
 
 func (s *WeatherService) WeatherHistoryOfUser(
 	ctx context.Context,
 	userID int64,
 	filter dto.WeatherHistoryFilter,
-) ([]dto.WeatherHistoryResponse, error) {
+) ([]model.WeatherHistory, error) {
 
 	filter.Normalize()
 	return s.repo.WeatherHistoryOfUser(ctx, userID, filter)

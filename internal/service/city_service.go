@@ -37,7 +37,10 @@ func NewCityService(repo cityRepository, provider osmProvider) *CityService {
 ////// methods
 ////// methods
 
-func (s *CityService) Create(ctx context.Context, input dto.CreateCityInput) error {
+func (s *CityService) Create(
+	ctx context.Context,
+	input dto.CreateCityInput,
+) error {
 	if err := input.NormalizeAndValidate(); err != nil {
 		return err
 	}
@@ -64,26 +67,40 @@ func (s *CityService) Create(ctx context.Context, input dto.CreateCityInput) err
 	return s.repo.Create(ctx, input)
 }
 
-func (s *CityService) Add2User(ctx context.Context, userID int64, input dto.AddCityInput) error {
+func (s *CityService) Add2User(
+	ctx context.Context,
+	userID int64,
+	input dto.AddCityInput,
+) error {
 	if err := input.NormalizeAndValidate(); err != nil {
 		return err
 	}
 	return s.repo.Add2User(ctx, userID, input)
 }
 
-func (s *CityService) ListCitiesOfUser(ctx context.Context, userID int64, filter dto.ListCitiesFilter) ([]model.City, error) {
+func (s *CityService) ListCitiesOfUser(
+	ctx context.Context,
+	userID int64,
+	filter dto.ListCitiesFilter,
+) ([]model.City, error) {
 	filter.Normalize()
 	return s.repo.ListCitiesOfUser(ctx, userID, filter)
 }
 
-func (s *CityService) GetByName(ctx context.Context, name string) (model.City, error) {
+func (s *CityService) GetByName(
+	ctx context.Context,
+	name string,
+) (model.City, error) {
 	// if err := input.NormalizeAndValidate(); err != nil {
 	// 	return domain.City{}, err
 	// }
 	return s.repo.GetByName(ctx, strings.TrimSpace(strings.ToLower(name)))
 }
 
-func (s *CityService) DeleteFromUser(ctx context.Context, userID, cityID int64) error {
+func (s *CityService) DeleteFromUser(
+	ctx context.Context,
+	userID, cityID int64,
+) error {
 	if userID <= 0 {
 		return model.ErrInvalidUserID
 	}

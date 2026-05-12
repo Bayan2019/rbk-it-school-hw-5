@@ -2,24 +2,12 @@ package dto
 
 import (
 	"strings"
-	"time"
 
 	"github.com/Bayan2019/rbk-it-school-hw-5/internal/model"
 )
 
 type CityWeatherInput struct {
 	City        string `db:"city" json:"city"`
-	Temperature float64
-	Description string
-}
-
-type CityWeatherResponse struct {
-	City        string  `db:"city" json:"city"`
-	Temperature float64 `json:"temperature"`
-	Description string  `json:"description"`
-}
-
-type ProviderWeatherResponse struct {
 	Temperature float64
 	Description string
 }
@@ -31,28 +19,7 @@ type WeatherHistoryFilter struct {
 }
 
 type WeatherHistoryResponse struct {
-	UserID      int       `db:"user_id" json:"user_id"`
-	City        string    `db:"city" json:"city,omitempty"`
-	RequestedAt time.Time `db:"requested_at" json:"requested_at"`
-	Temperature int       `db:"temperature" json:"temperature"`
-	Description string    `db:"description" json:"description"`
-}
-
-type WeatherHistoryCityResponse struct {
-	RequestedAt time.Time `db:"requested_at" json:"requested_at"`
-	Temperature int       `db:"temperature" json:"temperature"`
-	Description string    `db:"description" json:"description"`
-}
-
-type WeatherHistoryOfUserOfCityResponse struct {
-	UserID  int                          `json:"user_id"`
-	City    string                       `json:"city"`
-	History []WeatherHistoryCityResponse `json:"history"`
-}
-
-type WeatherHistoryOfUserResponse struct {
-	UserID  int                      `json:"user_id"`
-	History []WeatherHistoryResponse `json:"history"`
+	Data []model.WeatherHistory `json:"data"`
 }
 
 ////// accommodating functions

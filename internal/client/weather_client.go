@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/Bayan2019/rbk-it-school-hw-5/internal/dto"
+	"github.com/Bayan2019/rbk-it-school-hw-5/internal/model"
 )
 
 type WeatherClient struct {
@@ -22,23 +22,14 @@ func NewWeatherClient(httpClient *http.Client) *WeatherClient {
 	}
 }
 
-type openMeteoResponse struct {
-	CurrentWeather struct {
-		Temperature float64 `json:"temperature"`
-		Windspeed   float64 `json:"windspeed"`
-		Weathercode int     `json:"weathercode"`
-		Time        string  `json:"time"`
-	} `json:"current_weather"`
-}
-
 ////// methods
 ////// methods
 ////// methods
 
-func (c *WeatherClient) GetCurrentWeather(ctx context.Context, lat, lon float64) (dto.ProviderWeatherResponse, error) {
+func (c *WeatherClient) GetCurrentWeather(ctx context.Context, lat, lon float64) (model.Weather, error) {
 	u, err := url.Parse(c.baseURL)
 	if err != nil {
-		return dto.ProviderWeatherResponse{}, fmt.Errorf("parse base url: %w", err)
+		return model.Weather{}, fmt.Errorf("parse base url: %w", err)
 	}
 
 	q := u.Query()
@@ -49,24 +40,24 @@ func (c *WeatherClient) GetCurrentWeather(ctx context.Context, lat, lon float64)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
-		return dto.ProviderWeatherResponse{}, fmt.Errorf("create request: %w", err)
+		return model.Weather{}, fmt.Errorf("create request: %w", err)
 	}
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return dto.ProviderWeatherResponse{}, fmt.Errorf("call external api: %w", err)
+		return model.Weather{}, fmt.Errorf("call external api: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return dto.ProviderWeatherResponse{}, fmt.Errorf("external api returned status: %d", resp.StatusCode)
+		return model.Weather{}, fmt.Errorf("external api returned status: %d", resp.StatusCode)
 	}
 
-	var result openMeteoResponse
+	var result model.OpenMeteoResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return dto.ProviderWeatherResponse{}, fmt.Errorf("decode external api response: %w", err)
+		return model.Weather{}, fmt.Errorf("decode external api response: %w", err)
 	}
 
-	return dto.ProviderWeatherResponse{
+	return model.Weather{
 		Temperature: result.CurrentWeather.Temperature,
 		Description: mapWeatherCode(result.CurrentWeather.Weathercode),
 	}, nil
