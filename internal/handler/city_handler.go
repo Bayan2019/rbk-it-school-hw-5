@@ -19,7 +19,7 @@ import (
 type cityService interface {
 	Create(ctx context.Context, input dto.CreateCityInput) error
 	Add2User(ctx context.Context, userID int64, input dto.AddCityInput) error
-	ListOfUser(ctx context.Context, userID int64, filter dto.ListCitiesFilter) ([]model.City, error)
+	ListCitiesOfUser(ctx context.Context, userID int64, filter dto.ListCitiesFilter) ([]model.City, error)
 	GetByName(ctx context.Context, name string) (model.City, error)
 	DeleteFromUser(ctx context.Context, userID, cityID int64) error
 }
@@ -99,7 +99,7 @@ func (h *CityHandler) ListOfUser(w http.ResponseWriter, r *http.Request) {
 		IncludeDeleted: parseBoolQuery(r, "include_deleted", false),
 	}
 
-	cities, err := h.service.ListOfUser(r.Context(), user.ID, filter)
+	cities, err := h.service.ListCitiesOfUser(r.Context(), user.ID, filter)
 	if err != nil {
 		h.handleError(w, err)
 		return

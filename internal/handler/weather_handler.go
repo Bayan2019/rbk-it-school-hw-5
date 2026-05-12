@@ -20,6 +20,13 @@ type WeatherHandler struct {
 	WeatherService weatherService
 }
 
+func NewWeatherHandler(city cityService, weather weatherService) *WeatherHandler {
+	return &WeatherHandler{
+		CityService:    city,
+		WeatherService: weather,
+	}
+}
+
 ////// methods
 ////// methods
 ////// methods
@@ -30,7 +37,7 @@ func (h *WeatherHandler) GetWeatherOfUserCities(w http.ResponseWriter, r *http.R
 		middleware.WriteError(w, http.StatusUnauthorized, "unauthorized", err)
 		return
 	}
-	cities, err := h.CityService.ListOfUser(r.Context(), user.ID, dto.ListCitiesFilter{})
+	cities, err := h.CityService.ListCitiesOfUser(r.Context(), user.ID, dto.ListCitiesFilter{})
 	if err != nil {
 		middleware.WriteError(w, http.StatusInternalServerError, "couldn't get cities of user", err)
 		return

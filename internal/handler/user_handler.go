@@ -169,9 +169,9 @@ func (h *UserHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
-	id, err := parseIDParam(r)
+	userCtx, err := middleware.UserFromContext(r.Context())
 	if err != nil {
-		h.handleError(w, err)
+		middleware.WriteError(w, http.StatusUnauthorized, "unauthorized", err)
 		return
 	}
 
@@ -181,7 +181,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.service.Update(r.Context(), id, input)
+	err = h.service.Update(r.Context(), userCtx.ID, input)
 	if err != nil {
 		h.handleError(w, err)
 		return
