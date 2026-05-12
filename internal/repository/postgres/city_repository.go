@@ -70,7 +70,6 @@ func (r *CityRepository) Add2User(
 	query := `
 		INSERT INTO users_cities (user_id, city_id)
 		VALUES (:user_id, :city_id)
-		RETURNING user_id, city_id
 	`
 
 	args := map[string]any{
@@ -94,7 +93,7 @@ func (r *CityRepository) Add2User(
 		return errors.New("city is not added to user")
 	}
 
-	return errors.New("failed to add city")
+	return nil
 }
 
 func (r *CityRepository) ListCitiesOfUser(

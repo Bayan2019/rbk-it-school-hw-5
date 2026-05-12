@@ -40,7 +40,7 @@ type ApiConfig struct {
 func MustLoad() Config {
 	cfg := Config{
 		App: AppConfig{
-			Port: getEnv("APP_PORT", "8080"),
+			Port: getEnv("APP_PORT", ":8080"),
 			// 6. Безопасность
 			// - JWT secret хранить в env
 			JwtSecret:    getEnv("JWT_SECRET", "dev-secret-change-me"),
