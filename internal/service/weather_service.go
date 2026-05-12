@@ -32,7 +32,10 @@ func NewWeatherService(repo weatherRepository, provider weatherProvider) *Weathe
 ////// methods
 ////// methods
 
-func (s *WeatherService) CreateHistory(ctx context.Context, userID int64, city model.City) error {
+func (s *WeatherService) CreateHistory(ctx context.Context,
+	userID int64,
+	city model.City,
+) error {
 
 	res, err := s.provider.GetCurrentWeather(ctx, city.Lat, city.Lon)
 	if err != nil {
@@ -49,7 +52,11 @@ func (s *WeatherService) CreateHistory(ctx context.Context, userID int64, city m
 	})
 }
 
-func (s *WeatherService) WeatherHistoryOfUser(ctx context.Context, userID int64, filter dto.WeatherHistoryFilter) ([]dto.WeatherHistoryResponse, error) {
+func (s *WeatherService) WeatherHistoryOfUser(
+	ctx context.Context,
+	userID int64,
+	filter dto.WeatherHistoryFilter,
+) ([]dto.WeatherHistoryResponse, error) {
 
 	filter.Normalize()
 	return s.repo.WeatherHistoryOfUser(ctx, userID, filter)

@@ -16,7 +16,7 @@ type osmProvider interface {
 type cityRepository interface {
 	Create(ctx context.Context, input dto.CreateCityInput) error
 	Add2User(ctx context.Context, userID int64, input dto.AddCityInput) error
-	ListOfUser(ctx context.Context, userID int64, filter dto.ListCitiesFilter) ([]model.City, error)
+	ListCitiesOfUser(ctx context.Context, userID int64, filter dto.ListCitiesFilter) ([]model.City, error)
 	GetByName(ctx context.Context, name string) (model.City, error)
 	DeleteFromUser(ctx context.Context, userID, cityID int64) error
 }
@@ -71,9 +71,9 @@ func (s *CityService) Add2User(ctx context.Context, userID int64, input dto.AddC
 	return s.repo.Add2User(ctx, userID, input)
 }
 
-func (s *CityService) ListOfUser(ctx context.Context, userID int64, filter dto.ListCitiesFilter) ([]model.City, error) {
+func (s *CityService) ListCitiesOfUser(ctx context.Context, userID int64, filter dto.ListCitiesFilter) ([]model.City, error) {
 	filter.Normalize()
-	return s.repo.ListOfUser(ctx, userID, filter)
+	return s.repo.ListCitiesOfUser(ctx, userID, filter)
 }
 
 func (s *CityService) GetByName(ctx context.Context, name string) (model.City, error) {
