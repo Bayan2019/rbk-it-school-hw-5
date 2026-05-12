@@ -6,7 +6,9 @@
 
 ## REST API
 
-### Register
+### user
+
+#### Register
 
 ```bash
 curl -X POST http://localhost:8080/auth/register \
@@ -16,7 +18,7 @@ curl -X POST http://localhost:8080/auth/register \
         "is_active": true}'
 ```
 
-### Login
+#### Login
 
 ```bash
 curl -X POST http://localhost:8080/auth/login \
@@ -30,7 +32,7 @@ curl -X POST http://localhost:8080/auth/login \
   -d '{"email":"admin@example.com","password":"admin123"}'
 ```
 
-### Profile
+#### Profile
 
 ```bash
 curl http://localhost:8080/users/me \
