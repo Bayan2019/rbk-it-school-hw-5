@@ -38,6 +38,14 @@ type ListUsersFilter struct {
 	IncludeDeleted bool   `json:"include_deleted"`
 }
 
+type UsersResponse struct {
+	Data []model.User `json:"data"`
+}
+
+type UserResponse struct {
+	Data model.User `json:"data"`
+}
+
 ////// accommodating functions
 ////// accommodating functions
 ////// accommodating functions
