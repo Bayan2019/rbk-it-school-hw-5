@@ -23,7 +23,10 @@ func NewCityRepository(db *sqlx.DB) *CityRepository {
 ////// methods
 ////// methods
 
-func (r *CityRepository) Create(ctx context.Context, input dto.CreateCityInput) error {
+func (r *CityRepository) Create(
+	ctx context.Context,
+	input dto.CreateCityInput,
+) error {
 	query := `
 		INSERT INTO cities (city, lat, lon)
 		VALUES (:city, :lat, :lon)
@@ -55,7 +58,11 @@ func (r *CityRepository) Create(ctx context.Context, input dto.CreateCityInput) 
 	return nil
 }
 
-func (r *CityRepository) Add2User(ctx context.Context, userID int64, input dto.AddCityInput) error {
+func (r *CityRepository) Add2User(
+	ctx context.Context,
+	userID int64,
+	input dto.AddCityInput,
+) error {
 	city, err := r.GetByName(ctx, input.City)
 	if err != nil {
 		return err
@@ -90,7 +97,11 @@ func (r *CityRepository) Add2User(ctx context.Context, userID int64, input dto.A
 	return errors.New("failed to add city")
 }
 
-func (r *CityRepository) ListOfUser(ctx context.Context, userID int64, filter dto.ListCitiesFilter) ([]model.City, error) {
+func (r *CityRepository) ListCitiesOfUser(
+	ctx context.Context,
+	userID int64,
+	filter dto.ListCitiesFilter,
+) ([]model.City, error) {
 	builder := strings.Builder{}
 	builder.WriteString(`
 		SELECT c.city_id, c.city, c.lat, c.lon, c.created_at, c.updated_at
@@ -125,7 +136,10 @@ func (r *CityRepository) ListOfUser(ctx context.Context, userID int64, filter dt
 	return cities, nil
 }
 
-func (r *CityRepository) GetByName(ctx context.Context, name string) (model.City, error) {
+func (r *CityRepository) GetByName(
+	ctx context.Context,
+	name string,
+) (model.City, error) {
 
 	query := `
 		SELECT city_id, city, lat, lon, created_at, updated_at
@@ -144,7 +158,10 @@ func (r *CityRepository) GetByName(ctx context.Context, name string) (model.City
 	return city, nil
 }
 
-func (r *CityRepository) DeleteFromUser(ctx context.Context, userID, cityID int64) error {
+func (r *CityRepository) DeleteFromUser(
+	ctx context.Context,
+	userID, cityID int64,
+) error {
 	query := `
 		UPDATE users_cities
 		SET deleted_at = NOW()

@@ -24,7 +24,10 @@ func NewUserRepository(db *sqlx.DB) *UserRepository {
 ////// methods
 ////// methods
 
-func (r *UserRepository) Create(ctx context.Context, input dto.CreateUserInput) (model.User, error) {
+func (r *UserRepository) Create(
+	ctx context.Context,
+	input dto.CreateUserInput,
+) (model.User, error) {
 	query := `
 		INSERT INTO users (email, password_hash, first_name, last_name, is_active)
 		VALUES (:email, :password_hash, :first_name, :last_name, :is_active)
@@ -58,7 +61,10 @@ func (r *UserRepository) Create(ctx context.Context, input dto.CreateUserInput) 
 	return model.User{}, errors.New("failed to create user")
 }
 
-func (r *UserRepository) List(ctx context.Context, filter dto.ListUsersFilter) ([]model.User, error) {
+func (r *UserRepository) List(
+	ctx context.Context,
+	filter dto.ListUsersFilter,
+) ([]model.User, error) {
 	builder := strings.Builder{}
 	builder.WriteString(`
 		SELECT id, email, password_hash, first_name, last_name, is_active, created_at, updated_at, deleted_at
@@ -97,7 +103,11 @@ func (r *UserRepository) List(ctx context.Context, filter dto.ListUsersFilter) (
 	return users, nil
 }
 
-func (r *UserRepository) GetByID(ctx context.Context, id int64, includeDeleted bool) (model.User, error) {
+func (r *UserRepository) GetByID(
+	ctx context.Context,
+	id int64,
+	includeDeleted bool,
+) (model.User, error) {
 	query := `
 		SELECT id, email, password_hash, first_name, last_name, role, is_active, created_at, updated_at, deleted_at
 		FROM users
@@ -118,7 +128,11 @@ func (r *UserRepository) GetByID(ctx context.Context, id int64, includeDeleted b
 	return user, nil
 }
 
-func (r *UserRepository) GetByEmail(ctx context.Context, email string, includeDeleted bool) (model.User, error) {
+func (r *UserRepository) GetByEmail(
+	ctx context.Context,
+	email string,
+	includeDeleted bool,
+) (model.User, error) {
 	query := `
 		SELECT id, email, password_hash, first_name, last_name, role, is_active, created_at, updated_at, deleted_at
 		FROM users
@@ -139,7 +153,11 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string, includeDe
 	return user, nil
 }
 
-func (r *UserRepository) Update(ctx context.Context, id int64, input dto.UpdateUserInput) (model.User, error) {
+func (r *UserRepository) Update(
+	ctx context.Context,
+	id int64,
+	input dto.UpdateUserInput,
+) error {
 	query := `
 		UPDATE users
 		SET email = :email,
@@ -148,7 +166,6 @@ func (r *UserRepository) Update(ctx context.Context, id int64, input dto.UpdateU
 		    last_name = :last_name,
 		    is_active = :is_active
 		WHERE id = :id AND deleted_at IS NULL
-		RETURNING id, email, password_hash, first_name, last_name, is_active, created_at, updated_at, deleted_at
 	`
 
 	args := map[string]any{
@@ -160,27 +177,29 @@ func (r *UserRepository) Update(ctx context.Context, id int64, input dto.UpdateU
 		"is_active":     boolValue(input.IsActive, true),
 	}
 
-	rows, err := r.db.NamedQueryContext(ctx, query, args)
+	result, err := r.db.NamedExecContext(ctx, query, args)
 	if err != nil {
 		if isUniqueViolation(err) {
-			return model.User{}, model.ErrEmailAlreadyTaken
+			return model.ErrEmailAlreadyTaken
 		}
-		return model.User{}, err
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-		var user model.User
-		if err := rows.StructScan(&user); err != nil {
-			return model.User{}, err
-		}
-		return user, nil
+		return err
 	}
 
-	return model.User{}, model.ErrUserNotFound
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("result.RowsAffected(): %v", err)
+	}
+	if rowsAffected == 0 {
+		return errors.New("user is not updated")
+	}
+
+	return nil
 }
 
-func (r *UserRepository) Delete(ctx context.Context, id int64) error {
+func (r *UserRepository) Delete(
+	ctx context.Context,
+	id int64,
+) error {
 	result, err := r.db.ExecContext(ctx, `
 		UPDATE users
 		SET deleted_at = NOW()

@@ -22,7 +22,11 @@ func NewWeatherRepository(db *sqlx.DB) *WeatherRepository {
 ////// methods
 ////// methods
 
-func (r *WeatherRepository) CreateHistory(ctx context.Context, userID int64, cityWeather dto.CityWeatherInput) error {
+func (r *WeatherRepository) CreateHistory(
+	ctx context.Context,
+	userID int64,
+	cityWeather dto.CityWeatherInput,
+) error {
 
 	query := `
 		INSERT INTO weather_history (user_id, city, temperature, description)
@@ -52,7 +56,11 @@ func (r *WeatherRepository) CreateHistory(ctx context.Context, userID int64, cit
 	return nil
 }
 
-func (r *WeatherRepository) WeatherHistoryOfUser(ctx context.Context, userID int64, filter dto.WeatherHistoryFilter) ([]dto.WeatherHistoryResponse, error) {
+func (r *WeatherRepository) WeatherHistoryOfUser(
+	ctx context.Context,
+	userID int64,
+	filter dto.WeatherHistoryFilter,
+) ([]dto.WeatherHistoryResponse, error) {
 	builder := strings.Builder{}
 	builder.WriteString(`
 		SELECT user_id, city, temperature, description, requested_at
