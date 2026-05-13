@@ -12,6 +12,7 @@ var (
 	// 1. Аутентификация
 	// - email должен быть уникальным
 	ErrEmailAlreadyTaken = errors.New("email already exists")
+	ErrHashingPassword   = errors.New("error hashing password")
 )
 
 type Roles string

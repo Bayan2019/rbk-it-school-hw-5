@@ -23,6 +23,14 @@ type CreateUserInput struct {
 	IsActive     *bool  `json:"is_active,omitempty"`
 }
 
+type UpdateUserRequest struct {
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	IsActive  *bool  `json:"is_active,omitempty"`
+}
+
 type UpdateUserInput struct {
 	Email        string `json:"email"`
 	PasswordHash string `json:"password_hash"`
@@ -115,4 +123,22 @@ func RegisterUserInput2CreateUserInput(rui RegisterUserInput) (CreateUserInput, 
 	create.PasswordHash = hashPassword
 
 	return create, nil
+}
+
+func UpdateUserRequest2UpdateUserInput(uur UpdateUserRequest) (UpdateUserInput, error) {
+	var update UpdateUserInput
+	update.Email = uur.Email
+	update.FirstName = uur.FirstName
+	update.LastName = uur.LastName
+	update.IsActive = uur.IsActive
+	// 6. Безопасность
+	// - bcrypt для паролей
+	// - не хранить пароли в plain text
+	hashPassword, err := auth.HashPassword(uur.Password)
+	if err != nil {
+		return update, err
+	}
+	update.PasswordHash = hashPassword
+
+	return update, nil
 }

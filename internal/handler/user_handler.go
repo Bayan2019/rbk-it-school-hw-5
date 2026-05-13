@@ -175,13 +175,18 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var input dto.UpdateUserInput
+	var input dto.UpdateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		middleware.WriteError(w, http.StatusBadRequest, "invalid json body", err)
 		return
 	}
 
-	err = h.service.Update(r.Context(), userCtx.ID, input)
+	update, err := dto.UpdateUserRequest2UpdateUserInput(input)
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		middleware.WriteError(w, http.StatusInternalServerError, "error mapping UpdateUserRequest to UpdateUserInput", err)
+		return
+	}
+	err = h.service.Update(r.Context(), userCtx.ID, update)
 	if err != nil {
 		h.handleError(w, err)
 		return
